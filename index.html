@@ -3,7 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Tap Tap Game</title>
+    
+    <!-- Title Web -->
+    <title>Alya Chan - Rasakan kenikmatan di spong Alya</title>
+    
+    <!-- Meta Deskripsi & SEO -->
+    <meta name="description" content="Entod Alya, Buat dia hamil!!">
+    <meta name="keywords" content="Alya Chan, game tap tap, popcat, game lucu, clicker game, game browser, alya chan game, game html">
+    <meta name="author" content="Alya Chan Developer">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Meta Sosial Media (Untuk WhatsApp, Discord, Facebook, dll) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Alya Chan - Game Tap Tap Popcat Lucu">
+    <meta property="og:description" content="Ketuk karakter Alya Chan yang menggemaskan untuk mendengarkan suara popcat yang seru dan dapatkan poin sebanyak-banyaknya!">
+    <meta property="og:image" content="https://kappa.lol/TXcqKK">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Alya Chan - Game Tap Tap Popcat Lucu">
+    <meta name="twitter:description" content="Ketuk karakter Alya Chan yang menggemaskan untuk mendengarkan suara popcat yang seru dan dapatkan poin sebanyak-banyaknya!">
+    <meta name="twitter:image" content="https://kappa.lol/TXcqKK">
+
+    <!-- Favicon (Menggunakan gambar versi mangap sesuai permintaan) -->
+    <link rel="icon" type="image/x-icon" href="https://kappa.lol/TXcqKK">
+    <link rel="apple-touch-icon" href="https://kappa.lol/TXcqKK">
+
     <style>
         body {
             margin: 0;
@@ -21,14 +46,25 @@
         }
 
         #score-container {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Nama karakter/game di bagian atas */
+        #title-text {
+            font-size: 1.8rem;
+            color: #333333;
+            margin: 0 0 5px 0;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
         #score {
             font-size: 5rem;
             margin: 0;
-            color: #333;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            color: #222222;
+            font-weight: 800;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.05);
         }
 
         #character-container {
@@ -55,17 +91,22 @@
             #score {
                 font-size: 4rem;
             }
+            #title-text {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
 <body>
 
     <div id="score-container">
+        <!-- Menampilkan nama Alya Chan -->
+        <h2 id="title-text">Alya Chan</h2>
         <h1 id="score">0</h1>
     </div>
     
     <div id="character-container">
-        <img id="character" src="https://kappa.lol/im1FCa" alt="Karakter" draggable="false">
+        <img id="character" src="https://kappa.lol/im1FCa" alt="Alya Chan" draggable="false">
     </div>
 
     <script>
@@ -112,37 +153,31 @@
         function tapAction(e) {
             if (e && e.cancelable) e.preventDefault();
             
-            // Tambah skor & langsung bunyikan suara (tanpa delay)
             score++;
             scoreElement.innerText = score;
             playPopSound();
 
-            // Hentikan timer-timer sebelumnya agar tidak berbenturan
             clearTimeout(closeTimeout);
             clearTimeout(openTimeout);
 
             if (isMouthOpen) {
-                // Jika sedang mangap, paksa mingkem sekejap dulu
                 character.src = imgClosed;
-                character.style.transform = "scale(1.03)"; // Efek memantul balik
+                character.style.transform = "scale(1.03)";
                 isMouthOpen = false;
 
-                // Tunggu 40 milidetik (sangat cepat, setara 2 frame layar) lalu mangap lagi
                 openTimeout = setTimeout(() => {
                     openMouth();
                 }, 40);
             } else {
-                // Jika sedang mingkem, langsung mangap saja
                 openMouth();
             }
         }
 
         function openMouth() {
             character.src = imgOpen;
-            character.style.transform = "scale(0.92)"; // Gambar mengecil saat gigit/mangap
+            character.style.transform = "scale(0.92)";
             isMouthOpen = true;
 
-            // Tutup otomatis mulutnya setelah 120 milidetik jika tidak ada klik baru
             closeTimeout = setTimeout(() => {
                 character.src = imgClosed;
                 character.style.transform = "scale(1)";
@@ -150,10 +185,8 @@
             }, 120); 
         }
 
-        // Pasang event klik / tap
         character.addEventListener('pointerdown', tapAction);
 
-        // Pasang tombol spasi keyboard
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && !e.repeat) {
                 e.preventDefault();
