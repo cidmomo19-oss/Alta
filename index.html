@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Tap Tap Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            -webkit-touch-callout: none;
+            overflow: hidden;
+        }
+
+        #score-container {
+            margin-bottom: 30px;
+        }
+
+        #score {
+            font-size: 5rem;
+            margin: 0;
+            color: #333;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        #character-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #character {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.05s ease-in-out;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+        }
+
+        @media (max-width: 400px) {
+            #character {
+                width: 250px;
+                height: 250px;
+            }
+            #score {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="score-container">
+        <h1 id="score">0</h1>
+    </div>
+    
+    <div id="character-container">
+        <img id="character" src="https://kappa.lol/im1FCa" alt="Karakter" draggable="false">
+    </div>
+
+    <script>
+        const character = document.getElementById('character');
+        const scoreElement = document.getElementById('score');
+        let score = 0;
+
+        const imgClosed = "https://kappa.lol/im1FCa";
+        const imgOpen = "https://kappa.lol/TXcqKK";
+
+        // Preload gambar biar lancar
+        const preloadedImg = new Image();
+        preloadedImg.src = imgOpen;
+
+        // Sound Engine (Zero Latency)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+        let popSoundBuffer = null;
+
+        fetch("https://kappa.lol/bZUmJG.m4a")
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
+            .then(audioBuffer => {
+                popSoundBuffer = audioBuffer;
+            })
+            .catch(error => console.error("Gagal memuat audio:", error));
+
+        function playPopSound() {
+            if (!popSoundBuffer) return;
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const source = audioCtx.createBufferSource();
+            source.buffer = popSoundBuffer;
+            source.connect(audioCtx.destination);
+            source.start(0);
+        }
+
+        // State & Timer Control
+        let isMouthOpen = false;
+        let closeTimeout;
+        let openTimeout;
+
+        function tapAction(e) {
+            if (e && e.cancelable) e.preventDefault();
+            
+            // Tambah skor & langsung bunyikan suara (tanpa delay)
+            score++;
+            scoreElement.innerText = score;
+            playPopSound();
+
+            // Hentikan timer-timer sebelumnya agar tidak berbenturan
+            clearTimeout(closeTimeout);
+            clearTimeout(openTimeout);
+
+            if (isMouthOpen) {
+                // Jika sedang mangap, paksa mingkem sekejap dulu
+                character.src = imgClosed;
+                character.style.transform = "scale(1.03)"; // Efek memantul balik
+                isMouthOpen = false;
+
+                // Tunggu 40 milidetik (sangat cepat, setara 2 frame layar) lalu mangap lagi
+                openTimeout = setTimeout(() => {
+                    openMouth();
+                }, 40);
+            } else {
+                // Jika sedang mingkem, langsung mangap saja
+                openMouth();
+            }
+        }
+
+        function openMouth() {
+            character.src = imgOpen;
+            character.style.transform = "scale(0.92)"; // Gambar mengecil saat gigit/mangap
+            isMouthOpen = true;
+
+            // Tutup otomatis mulutnya setelah 120 milidetik jika tidak ada klik baru
+            closeTimeout = setTimeout(() => {
+                character.src = imgClosed;
+                character.style.transform = "scale(1)";
+                isMouthOpen = false;
+            }, 120); 
+        }
+
+        // Pasang event klik / tap
+        character.addEventListener('pointerdown', tapAction);
+
+        // Pasang tombol spasi keyboard
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !e.repeat) {
+                e.preventDefault();
+                tapAction(e);
+            }
+        });
+    </script>
+</body>
+</html>
